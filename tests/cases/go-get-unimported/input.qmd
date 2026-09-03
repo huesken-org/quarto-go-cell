@@ -1,0 +1,11 @@
+<!-- The module is not imported by the code, so tidy would drop it again; go-get= runs after tidy and adds it back as an indirect require. -->
+
+```{.go .run .output go-get="go.uber.org/goleak@v1.3.0"}
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("goleak is required but not imported")
+}
+```

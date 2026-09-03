@@ -1,0 +1,9 @@
+<!-- `module=` names the package in the `ok …` line, `filename=` the file in errors. -->
+
+```{.go .run .output .test module="example.com/board" filename="board_test.go"}
+package board
+
+import "testing"
+
+func TestBoard(t *testing.T) {}
+```

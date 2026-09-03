@@ -1,0 +1,15 @@
+<!-- Same on a plain `go run` block, with go-get= pinning the version. -->
+
+```{.go .run .output go-get="go.uber.org/goleak@v1.3.0"}
+package main
+
+import (
+	"fmt"
+
+	"go.uber.org/goleak"
+)
+
+func main() {
+	fmt.Println("goleak loaded:", goleak.IgnoreCurrent != nil)
+}
+```

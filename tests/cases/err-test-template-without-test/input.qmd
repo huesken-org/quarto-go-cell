@@ -1,0 +1,5 @@
+<!-- template="test" without .test used to die in cfg.pkg with a bare Lua traceback. -->
+
+```{.go .run .output template="test"}
+func TestX(t *testing.T) {}
+```

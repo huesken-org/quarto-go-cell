@@ -1,0 +1,14 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" ]
+    , [ ( "template" , "main" ) ]
+    )
+    "func main() {\n    fmt.Println(\"goimports adds the fmt import\")\n}"
+, CodeBlock
+    ( "" , [ "go-output" ] , [] )
+    "goimports adds the fmt import\n"
+]
+--- stderr

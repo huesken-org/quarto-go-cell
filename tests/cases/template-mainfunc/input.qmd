@@ -1,0 +1,3 @@
+```{.go .run .output template="mainfunc"}
+fmt.Println("only the body")
+```

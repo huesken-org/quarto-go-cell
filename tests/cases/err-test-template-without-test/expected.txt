@@ -1,0 +1,15 @@
+--- exit 1
+--- cache 0 result(s), 0 leftover dir(s)
+--- stdout
+--- stderr
+
+=== go-cell: template="test" works only on `.test` blocks ===
+  File       : TESTS/cases/err-test-template-without-test/input.qmd
+  Code block : func TestX(t *testing.T) {}
+  Exit code  : 0
+  Output     :
+
+  The package clause it adds is derived from `module=`, which only a test
+  block has. Mark the block with `.test` as well:
+      ```{.go .run .test template="test"}
+

@@ -1,0 +1,14 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- Three hidden lines are cut out above the error, so `main.go:10` becomes `main.go:7`. -->"
+, CodeBlock
+    ( "" , [ "go" , "run" , "output" , "expect-failure" ] , [] )
+    "package main\n\nimport \"fmt\"\n\n\nfunc main() {\n    fmt.Println(1 + \"x\")\n}"
+, CodeBlock
+    ( "" , [ "go-output" ] , [] )
+    "main.go:7:17: invalid operation: 1 + \"x\" (mismatched types untyped int and untyped string)\n"
+]
+--- stderr

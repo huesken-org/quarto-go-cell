@@ -1,0 +1,16 @@
+--- exit 1
+--- cache 0 result(s), 0 leftover dir(s)
+--- stdout
+--- stderr
+
+=== go-cell: `go get` failed ===
+  File       : TESTS/cases/err-go-get-bad/input.qmd
+  Code block : package main
+  Exit code  : 1
+  Output     :
+    | go: invalid module version syntax "foo@@bar"
+
+  go-get="foo@@bar" is passed to `go get` as it stands. Expected
+  are module paths, with a version where it matters:
+      go-get="go.uber.org/goleak@v1.3.0"
+

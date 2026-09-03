@@ -1,0 +1,15 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- The helper is compiled but must not appear on the slide. -->"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" ]
+    , [ ( "template" , "main" ) ]
+    )
+    "\nfunc main() {\n    fmt.Println(greet(\"welt\"))\n}"
+, CodeBlock ( "" , [ "go-output" ] , [] ) "hallo welt\n"
+]
+--- stderr

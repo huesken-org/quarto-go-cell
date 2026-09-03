@@ -1,0 +1,17 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- `template=\"test\"` adds the package clause, `goimports` the testing import. -->"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" , "test" ]
+    , [ ( "template" , "test" ) ]
+    )
+    "func TestGenerated(t *testing.T) {\n    t.Log(\"no package clause in the block\")\n}"
+, CodeBlock
+    ( "" , [ "bash-output" ] , [] )
+    "ok  \texample.com/main\t0.000s\n"
+]
+--- stderr

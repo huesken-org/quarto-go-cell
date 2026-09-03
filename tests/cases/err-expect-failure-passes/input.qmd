@@ -1,0 +1,5 @@
+```{.go .run .output .expect-failure}
+package main
+
+func main() {}
+```

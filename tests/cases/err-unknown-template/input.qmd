@@ -1,0 +1,5 @@
+<!-- An unrecognised template= used to write an empty source file and fail with a baffling compile error. -->
+
+```{.go .run .output template="bogus"}
+fmt.Println("hello")
+```

@@ -1,0 +1,17 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- The compile error is on line 2 of the *block*, not of the generated file. -->"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" , "expect-failure" ]
+    , [ ( "template" , "mainfunc" ) ]
+    )
+    "x := 42\nfmt.Println(x + \"not a number\")"
+, CodeBlock
+    ( "" , [ "go-output" ] , [] )
+    "main.go:2:14: invalid operation: x + \"not a number\" (mismatched types int and untyped string)\n"
+]
+--- stderr

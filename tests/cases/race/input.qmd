@@ -1,0 +1,19 @@
+<!-- `.race` needs cgo and a C compiler. -->
+
+```{.go .run .output .race .expect-failure}
+package main
+
+import "fmt"
+
+func main() {
+	x := 0
+	done := make(chan bool)
+	go func() {
+		x++
+		done <- true
+	}()
+	x++
+	<-done
+	fmt.Println(x)
+}
+```

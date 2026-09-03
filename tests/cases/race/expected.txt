@@ -1,0 +1,17 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- `.race` needs cgo and a C compiler. -->"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" , "race" , "expect-failure" ]
+    , []
+    )
+    "package main\n\nimport \"fmt\"\n\nfunc main() {\n    x := 0\n    done := make(chan bool)\n    go func() {\n        x++\n        done <- true\n    }()\n    x++\n    <-done\n    fmt.Println(x)\n}"
+, CodeBlock
+    ( "" , [ "go-output" ] , [] )
+    "==================\nWARNING: DATA RACE\nRead at 0xADDR by goroutine 8:\n  main.main.func1()\n      main.go:9 +0xADDR\n\nPrevious write at 0xADDR by main goroutine:\n  main.main()\n      main.go:12 +0xADDR\n\nGoroutine 8 (running) created at:\n  main.main()\n      main.go:8 +0xADDR\n==================\nexit status 66\n"
+]
+--- stderr

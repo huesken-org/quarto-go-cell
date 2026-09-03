@@ -1,0 +1,7 @@
+<!-- A go-get= go cannot parse must abort the render, not land on the slide. The argument is malformed rather than merely unreachable, so the message does not depend on the network. -->
+
+```{.go .run .output go-get="foo@@bar"}
+package main
+
+func main() {}
+```

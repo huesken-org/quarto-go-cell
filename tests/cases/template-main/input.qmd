@@ -1,0 +1,5 @@
+```{.go .run .output template="main"}
+func main() {
+	fmt.Println("goimports adds the fmt import")
+}
+```

@@ -1,0 +1,19 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- The error points *into* the hidden block, so the number cannot be remapped: it stays as-is and the filter warns. -->"
+, CodeBlock
+    ( "" , [ "go" , "run" , "output" , "expect-failure" ] , [] )
+    "package main\n\nfunc main() {\n}"
+, CodeBlock
+    ( "" , [ "go-output" ] , [] )
+    "main.go:5:17: cannot use \"not an int\" (untyped string constant) as int value in variable declaration\n"
+]
+--- stderr
+
+go-cell: main.go:5 points into a <noshow> block. The number is left unchanged and therefore does not match the visible code.
+  File      : TESTS/cases/noshow-hidden-line-warning/input.qmd
+  Code block: package main
+

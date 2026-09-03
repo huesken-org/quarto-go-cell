@@ -1,0 +1,7 @@
+```{.go}
+// <noshow>
+package main
+// </noshow>
+
+func main() {}
+```

@@ -1,0 +1,17 @@
+--- exit 1
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+--- stderr
+
+=== go-cell: Go code did not run without errors ===
+  File       : TESTS/cases/err-unexpected-failure/input.qmd
+  Code block : package main
+  Exit code  : 1
+  Output     :
+    | main.go:4:5: undefined: undefinedFunction
+
+  Is the failure intended (compile-error demo, panic example, quiz answer
+  "compile error")? Then mark the code block with `.expect-failure`:
+      ```{.go .run .expect-failure}
+  Otherwise it is a real error on the slide.
+

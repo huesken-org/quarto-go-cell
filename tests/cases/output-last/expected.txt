@@ -1,0 +1,11 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ CodeBlock
+    ( "" , [ "go" , "run" ] , [] )
+    "package main\n\nimport \"fmt\"\n\nfunc main() {\n    fmt.Println(\"the div picks up the previous block\")\n}"
+, CodeBlock
+    ( "" , [ "go-output" ] , [] )
+    "the div picks up the previous block\n"
+]
+--- stderr

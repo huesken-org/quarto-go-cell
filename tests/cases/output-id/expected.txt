@@ -1,0 +1,15 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- The output is produced here but shown further down. -->"
+, CodeBlock
+    ( "" , [ "go" , "run" ] , [ ( "output-id" , "demo" ) ] )
+    "package main\n\nimport \"fmt\"\n\nfunc main() {\n    fmt.Println(\"shown later\")\n}"
+, RawBlock (Format "html") "<!-- Some text in between. -->"
+, CodeBlock
+    ( "" , [ "go-output" ] , [ ( "output-id" , "demo" ) ] )
+    "shown later\n"
+]
+--- stderr

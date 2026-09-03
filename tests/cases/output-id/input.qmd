@@ -1,0 +1,16 @@
+<!-- The output is produced here but shown further down. -->
+
+```{.go .run output-id="demo"}
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("shown later")
+}
+```
+
+<!-- Some text in between. -->
+
+::: {.go-output output-id="demo"}
+:::

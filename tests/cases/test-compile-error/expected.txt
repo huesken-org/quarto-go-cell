@@ -1,0 +1,17 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- The `# example.com/main` header is dropped and the path prefix cut off the filename. -->"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" , "test" , "expect-failure" ]
+    , []
+    )
+    "package main\n\nimport \"testing\"\n\nfunc TestBroken(t *testing.T) {\n    t.Nonsense()\n}"
+, CodeBlock
+    ( "" , [ "bash-output" ] , [] )
+    "main_test.go:6:7: t.Nonsense undefined (type *testing.T has no field or method Nonsense)\nFAIL\texample.com/main [build failed]\nFAIL\n"
+]
+--- stderr

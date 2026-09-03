@@ -1,0 +1,9 @@
+```{.go .run .output .test .expect-failure}
+package main
+
+import "testing"
+
+func TestBoom(t *testing.T) {
+	t.Errorf("boom")
+}
+```

@@ -1,0 +1,12 @@
+<!-- The error points *into* the hidden block, so the number cannot be remapped: it stays as-is and the filter warns. -->
+
+```{.go .run .output .expect-failure}
+package main
+
+func main() {
+	// <noshow>
+	var x int = "not an int"
+	_ = x
+	// </noshow>
+}
+```

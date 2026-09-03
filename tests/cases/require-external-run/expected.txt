@@ -1,0 +1,16 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- Same on a plain `go run` block, with go-get= pinning the version. -->"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" ]
+    , [ ( "go-get" , "go.uber.org/goleak@v1.3.0" ) ]
+    )
+    "package main\n\nimport (\n    \"fmt\"\n\n    \"go.uber.org/goleak\"\n)\n\nfunc main() {\n    fmt.Println(\"goleak loaded:\", goleak.IgnoreCurrent != nil)\n}"
+, CodeBlock
+    ( "" , [ "go-output" ] , [] ) "goleak loaded: true\n"
+]
+--- stderr

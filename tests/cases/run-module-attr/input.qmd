@@ -1,0 +1,9 @@
+<!-- module= now applies to go run blocks too; the header it puts in front of a compile error must still be stripped. -->
+
+```{.go .run .output .expect-failure module="example.com/demo"}
+package main
+
+func main() {
+	undefinedFunction()
+}
+```

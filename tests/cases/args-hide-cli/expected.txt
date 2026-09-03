@@ -1,0 +1,12 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" , "hide-cli" ]
+    , [ ( "args" , "alpha beta" ) ]
+    )
+    "package main\n\nimport (\n    \"fmt\"\n    \"os\"\n)\n\nfunc main() {\n    fmt.Println(os.Args[1:])\n}"
+, CodeBlock ( "" , [ "go-output" ] , [] ) "[alpha beta]\n"
+]
+--- stderr

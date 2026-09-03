@@ -1,0 +1,14 @@
+--- exit 1
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+--- stderr
+
+=== go-cell: Block is marked .expect-failure but ran without errors ===
+  File       : TESTS/cases/err-expect-failure-passes/input.qmd
+  Code block : package main
+  Exit code  : 0
+  Output     :
+
+  Either the error has been fixed since — then remove `.expect-failure` —
+  or the example no longer demonstrates what it is meant to.
+

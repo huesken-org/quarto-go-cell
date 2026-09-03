@@ -1,0 +1,11 @@
+<!-- The `# example.com/main` header is dropped and the path prefix cut off the filename. -->
+
+```{.go .run .output .test .expect-failure}
+package main
+
+import "testing"
+
+func TestBroken(t *testing.T) {
+	t.Nonsense()
+}
+```

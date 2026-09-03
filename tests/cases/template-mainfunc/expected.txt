@@ -1,0 +1,12 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" ]
+    , [ ( "template" , "mainfunc" ) ]
+    )
+    "fmt.Println(\"only the body\")"
+, CodeBlock ( "" , [ "go-output" ] , [] ) "only the body\n"
+]
+--- stderr

@@ -1,0 +1,17 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- A .test block feeding a div: the div's `go-output` class must come out as `bash-output`. -->"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "test" ]
+    , [ ( "output-id" , "t" ) ]
+    )
+    "package main\n\nimport \"testing\"\n\nfunc TestOk(t *testing.T) {}"
+, CodeBlock
+    ( "" , [ "bash-output" ] , [ ( "output-id" , "t" ) ] )
+    "ok  \texample.com/main\t0.000s\n"
+]
+--- stderr

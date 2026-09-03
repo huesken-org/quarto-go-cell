@@ -1,0 +1,17 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- The module is not imported by the code, so tidy would drop it again; go-get= runs after tidy and adds it back as an indirect require. -->"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" ]
+    , [ ( "go-get" , "go.uber.org/goleak@v1.3.0" ) ]
+    )
+    "package main\n\nimport \"fmt\"\n\nfunc main() {\n    fmt.Println(\"goleak is required but not imported\")\n}"
+, CodeBlock
+    ( "" , [ "go-output" ] , [] )
+    "goleak is required but not imported\n"
+]
+--- stderr

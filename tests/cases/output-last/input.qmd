@@ -1,0 +1,12 @@
+```{.go .run}
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("the div picks up the previous block")
+}
+```
+
+::: {.go-output}
+:::

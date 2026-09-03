@@ -1,0 +1,16 @@
+--- exit 1
+--- cache 0 result(s), 0 leftover dir(s)
+--- stdout
+--- stderr
+
+=== go-cell: Unknown template="bogus" ===
+  File       : TESTS/cases/err-unknown-template/input.qmd
+  Code block : fmt.Println("hello")
+  Exit code  : 0
+  Output     :
+
+  Known are `full` (the default: the block is the whole file, written as it
+  is), `main` (adds the package clause), `mainfunc` (adds package clause and
+  `func main`) and `test` (adds the package clause, for `.test` blocks).
+  Except for `full`, the imports are filled in by `goimports`.
+

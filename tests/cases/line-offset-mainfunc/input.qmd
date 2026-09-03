@@ -1,0 +1,6 @@
+<!-- The compile error is on line 2 of the *block*, not of the generated file. -->
+
+```{.go .run .output .expect-failure template="mainfunc"}
+x := 42
+fmt.Println(x + "not a number")
+```

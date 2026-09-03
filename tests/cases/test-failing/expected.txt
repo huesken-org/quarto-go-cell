@@ -1,0 +1,14 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" , "test" , "expect-failure" ]
+    , []
+    )
+    "package main\n\nimport \"testing\"\n\nfunc TestBoom(t *testing.T) {\n    t.Errorf(\"boom\")\n}"
+, CodeBlock
+    ( "" , [ "bash-output" ] , [] )
+    "--- FAIL: TestBoom (0.000s)\n    main_test.go:6: boom\nFAIL\nFAIL\texample.com/main\t0.000s\nFAIL\n"
+]
+--- stderr

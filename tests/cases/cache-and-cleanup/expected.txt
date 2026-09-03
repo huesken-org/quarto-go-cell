@@ -1,0 +1,35 @@
+--- exit 0
+--- cache 3 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- The same code twice: the second block is a cache hit and must print the same thing. -->"
+, CodeBlock
+    ( "" , [ "go" , "run" , "output" ] , [] )
+    "package main\n\nimport \"fmt\"\n\nfunc main() {\n    fmt.Println(\"cached\")\n}"
+, CodeBlock ( "" , [ "go-output" ] , [] ) "cached\n"
+, CodeBlock
+    ( "" , [ "go" , "run" , "output" ] , [] )
+    "package main\n\nimport \"fmt\"\n\nfunc main() {\n    fmt.Println(\"cached\")\n}"
+, CodeBlock ( "" , [ "go-output" ] , [] ) "cached\n"
+, RawBlock
+    (Format "html")
+    "<!-- Same code, different `args=` \8212 that must *not* share a cache entry. -->"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" ]
+    , [ ( "args" , "one" ) ]
+    )
+    "package main\n\nimport (\n    \"fmt\"\n    \"os\"\n)\n\nfunc main() {\n    fmt.Println(os.Args[1:])\n}"
+, CodeBlock
+    ( "" , [ "go-output" ] , [] ) "> go run . one\n[one]\n"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" ]
+    , [ ( "args" , "two" ) ]
+    )
+    "package main\n\nimport (\n    \"fmt\"\n    \"os\"\n)\n\nfunc main() {\n    fmt.Println(os.Args[1:])\n}"
+, CodeBlock
+    ( "" , [ "go-output" ] , [] ) "> go run . two\n[two]\n"
+]
+--- stderr

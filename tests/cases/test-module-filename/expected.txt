@@ -1,0 +1,19 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- `module=` names the package in the `ok \8230` line, `filename=` the file in errors. -->"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" , "test" ]
+    , [ ( "module" , "example.com/board" )
+      , ( "filename" , "board_test.go" )
+      ]
+    )
+    "package board\n\nimport \"testing\"\n\nfunc TestBoard(t *testing.T) {}"
+, CodeBlock
+    ( "" , [ "bash-output" ] , [] )
+    "ok  \texample.com/board\t0.000s\n"
+]
+--- stderr

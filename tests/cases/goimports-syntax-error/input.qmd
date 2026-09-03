@@ -1,0 +1,5 @@
+<!-- goimports cannot parse this, but the block is .expect-failure, so the filter carries on and lets `go run` report the real syntax error. -->
+
+```{.go .run .output .expect-failure template="mainfunc"}
+fmt.Println("unterminated
+```

@@ -1,0 +1,14 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- No dependency declaration at all: `go mod tidy` resolves the import in the code. -->"
+, CodeBlock
+    ( "" , [ "go" , "run" , "output" , "test" ] , [] )
+    "package main\n\nimport (\n    \"testing\"\n\n    \"go.uber.org/goleak\"\n)\n\nfunc TestNoLeaks(t *testing.T) {\n    defer goleak.VerifyNone(t)\n}"
+, CodeBlock
+    ( "" , [ "bash-output" ] , [] )
+    "ok  \texample.com/main\t0.000s\n"
+]
+--- stderr

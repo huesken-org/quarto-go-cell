@@ -1,0 +1,17 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- goimports cannot parse this, but the block is .expect-failure, so the filter carries on and lets `go run` report the real syntax error. -->"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" , "expect-failure" ]
+    , [ ( "template" , "mainfunc" ) ]
+    )
+    "fmt.Println(\"unterminated"
+, CodeBlock
+    ( "" , [ "go-output" ] , [] )
+    "main.go:1:30: newline in string\nmain.go:1:30: syntax error: unexpected newline in argument list; possibly missing comma or )\n"
+]
+--- stderr

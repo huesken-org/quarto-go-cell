@@ -1,0 +1,11 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ CodeBlock
+    ( "" , [ "go" , "run" , "output" , "test" ] , [] )
+    "package main\n\nimport \"testing\"\n\nfunc TestAdd(t *testing.T) {\n    if 1+1 != 2 {\n        t.Fatal(\"arithmetic is broken\")\n    }\n}"
+, CodeBlock
+    ( "" , [ "bash-output" ] , [] )
+    "ok  \texample.com/main\t0.000s\n"
+]
+--- stderr

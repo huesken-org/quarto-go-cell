@@ -1,0 +1,9 @@
+```{.go .run .output}
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("hello from a full template")
+}
+```

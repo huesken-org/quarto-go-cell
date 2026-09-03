@@ -1,0 +1,13 @@
+<!-- The helper is compiled but must not appear on the slide. -->
+
+```{.go .run .output template="main"}
+// <noshow>
+func greet(name string) string {
+	return "hallo " + name
+}
+// </noshow>
+
+func main() {
+	fmt.Println(greet("welt"))
+}
+```

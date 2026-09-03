@@ -1,0 +1,7 @@
+```{.go .run .output}
+package main
+
+func main() {
+	undefinedFunction()
+}
+```

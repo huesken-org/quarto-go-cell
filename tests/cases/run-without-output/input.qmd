@@ -1,0 +1,11 @@
+<!-- The block runs (a compile error would fail the render) but nothing is shown. -->
+
+```{.go .run}
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("this output is discarded")
+}
+```

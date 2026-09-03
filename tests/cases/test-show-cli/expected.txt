@@ -1,0 +1,14 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" , "test" , "show-cli" ]
+    , [ ( "test-args" , "-v" ) ]
+    )
+    "package main\n\nimport \"testing\"\n\nfunc TestAdd(t *testing.T) {}"
+, CodeBlock
+    ( "" , [ "bash-output" ] , [] )
+    "> go test -v ./main\n=== RUN   TestAdd\n--- PASS: TestAdd (0.000s)\nPASS\nok  \texample.com/main\t0.000s\n"
+]
+--- stderr

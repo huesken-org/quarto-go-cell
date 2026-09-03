@@ -1,0 +1,7 @@
+<!-- `template="test"` adds the package clause, `goimports` the testing import. -->
+
+```{.go .run .output .test template="test"}
+func TestGenerated(t *testing.T) {
+	t.Log("no package clause in the block")
+}
+```

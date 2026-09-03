@@ -1,0 +1,12 @@
+<!-- A .test block feeding a div: the div's `go-output` class must come out as `bash-output`. -->
+
+```{.go .run .test output-id="t"}
+package main
+
+import "testing"
+
+func TestOk(t *testing.T) {}
+```
+
+::: {.go-output output-id="t"}
+:::

@@ -1,0 +1,15 @@
+<!-- Three hidden lines are cut out above the error, so `main.go:10` becomes `main.go:7`. -->
+
+```{.go .run .output .expect-failure}
+package main
+
+import "fmt"
+
+// <noshow>
+func unused() {}
+// </noshow>
+
+func main() {
+	fmt.Println(1 + "x")
+}
+```

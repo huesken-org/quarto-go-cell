@@ -1,0 +1,7 @@
+```{.go .run .output .test .show-cli test-args="-v"}
+package main
+
+import "testing"
+
+func TestAdd(t *testing.T) {}
+```

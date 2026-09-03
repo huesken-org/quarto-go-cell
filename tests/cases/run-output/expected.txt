@@ -1,0 +1,10 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ CodeBlock
+    ( "" , [ "go" , "run" , "output" ] , [] )
+    "package main\n\nimport \"fmt\"\n\nfunc main() {\n    fmt.Println(\"hello from a full template\")\n}"
+, CodeBlock
+    ( "" , [ "go-output" ] , [] ) "hello from a full template\n"
+]
+--- stderr
