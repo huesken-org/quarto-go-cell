@@ -1,0 +1,51 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Both versions are pinned because the golden files record real output:
+      # pandoc's `native` writer shapes every expected.txt, and the Go compiler's
+      # wording appears verbatim in the compile-error cases. Bumping either is
+      # fine, it just needs a reviewed `tests/run.sh --update` in the same commit.
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26.7"
+          cache: false # no go.sum in this repo; the module cache is handled below
+
+      - uses: pandoc/actions/setup@v1
+        with:
+          version: 3.9.0.2
+
+      # The `require-external*` and `go-get-unimported` cases pull
+      # go.uber.org/goleak; the build cache saves recompiling ~30 blocks.
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: go-${{ runner.os }}-${{ hashFiles('tests/cases/*/input.qmd') }}
+          restore-keys: go-${{ runner.os }}-
+
+      - name: Install goimports
+        run: |
+          go install golang.org/x/tools/cmd/goimports@latest
+          echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
+
+      - name: Versions
+        run: |
+          pandoc --version | head -1
+          go version
+          goimports -h 2>&1 | head -1 || true
+          cc --version | head -1
+
+      - name: Run tests
+        run: tests/run.sh
