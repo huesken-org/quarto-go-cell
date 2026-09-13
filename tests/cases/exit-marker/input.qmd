@@ -1,0 +1,16 @@
+<!-- The marker is never shown. Inline output runs the whole program, the div with `exit=` stops at the marker. -->
+
+```{.go .run .output output-id="demo"}
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("one")
+	// exit: first
+	fmt.Println("two")
+}
+```
+
+::: {.go-output output-id="demo" exit="first"}
+:::

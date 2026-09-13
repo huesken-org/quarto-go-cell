@@ -1,0 +1,10 @@
+<!-- `go test` counts an os.Exit during a test as a failure, so exit= on a `.test` block aborts the render. -->
+
+```{.go .run .test template="test"}
+func TestX(t *testing.T) {
+	// exit: here
+}
+```
+
+::: {.go-output exit="here"}
+:::

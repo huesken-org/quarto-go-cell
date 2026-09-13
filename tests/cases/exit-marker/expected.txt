@@ -1,0 +1,21 @@
+--- exit 0
+--- cache 2 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- The marker is never shown. Inline output runs the whole program, the div with `exit=` stops at the marker. -->"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "output" ]
+    , [ ( "output-id" , "demo" ) ]
+    )
+    "package main\n\nimport \"fmt\"\n\nfunc main() {\n    fmt.Println(\"one\")\n    fmt.Println(\"two\")\n}"
+, CodeBlock ( "" , [ "go-output" ] , [] ) "one\ntwo\n"
+, CodeBlock
+    ( ""
+    , [ "go-output" ]
+    , [ ( "output-id" , "demo" ) , ( "exit" , "first" ) ]
+    )
+    "one\n"
+]
+--- stderr

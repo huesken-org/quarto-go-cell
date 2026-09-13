@@ -1,0 +1,15 @@
+<!-- The div names a marker the block does not have: abort the render. -->
+
+```{.go .run}
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("one")
+	// exit: first
+}
+```
+
+::: {.go-output exit="second"}
+:::

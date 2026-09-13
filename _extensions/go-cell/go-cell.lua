@@ -96,9 +96,38 @@ local function normalize_output(output, cfg)
 	return table.concat(out, "\n")
 end
 
+-- `// exit: <name>` on a line of its own marks where a `.go-output exit="<name>"`
+-- div cuts the program off. Returns the name, or nil.
+local function exit_marker(line)
+	return line:match("^%s*//%s*exit:%s*(%S+)%s*$")
+end
+
+-- The function an exit marker is replaced with. It lives in a file of its own
+-- (`EXIT_FILE`), so the block's source needs no `os` import — adding one would
+-- shift the line numbers of a `full` block.
+local EXIT_FUNC = "_goCellExit"
+local EXIT_FILE = "gocell_exit.go"
+
+-- Replaces every `// exit: <name>` marker with a call to `EXIT_FUNC`, in place:
+-- the line count stays, so line numbers need no extra mapping. Everything after
+-- the marker stays too, so the code still compiles. Also returns whether a
+-- marker was found.
+local function insert_exit(code, name)
+	local out = {}
+	local found = false
+	for line in (code .. "\n"):gmatch("([^\n]*)\n") do
+		if exit_marker(line) == name then
+			line = line:match("^(%s*)") .. EXIT_FUNC .. "()"
+			found = true
+		end
+		table.insert(out, line)
+	end
+	return table.concat(out, "\n"), found
+end
+
 -- Splits the block content in a single pass into
 --   1. the displayed code — everything outside `// <noshow>` … `// </noshow>`
---      (the markers themselves count as hidden)
+--      and without `// exit: <name>` markers (all markers count as hidden)
 --   2. the mapping "line number in the original -> line number in the displayed
 --      code"; hidden lines have no entry
 --   3. the number of hidden lines
@@ -117,6 +146,8 @@ local function split_noshow(code)
 			hidden = hidden + 1
 		elseif in_noshow and line:match("^%s*//%s*</noshow>%s*$") then
 			in_noshow = false
+			hidden = hidden + 1
+		elseif not in_noshow and exit_marker(line) then
 			hidden = hidden + 1
 		elseif not in_noshow then
 			table.insert(out, line)
@@ -254,7 +285,9 @@ local function race_env()
 	return env
 end
 
-local function run_go(el)
+-- `exit_name` (optional) runs the variant cut off at the `// exit: <name>`
+-- markers, for a `.go-output exit="<name>"` div.
+local function run_go(el, exit_name)
 	local code = el.text
 	-- `.test` runs the block with `go test` instead of `go run`.
 	local is_test = el.classes:includes("test")
@@ -307,24 +340,52 @@ local function run_go(el)
 			"      ```{.go .run .test template=\"test\"}")
 	end
 
+	-- What gets compiled: the block content, with the exit markers of `exit_name`
+	-- turned into calls. `code` itself stays untouched — `split_noshow` needs the
+	-- markers in it to map line numbers.
+	local src_code = code
+	if exit_name ~= nil then
+		-- `go test` reports an `os.Exit(0)` during a test as a failure of its own.
+		if is_test then
+			cleanup()
+			fail(el, 0, "",
+				"exit=\"" .. exit_name .. "\" does not work with `.test` blocks",
+				"`go test` treats a call to `os.Exit` during a test as a failure. Cut the\n" ..
+				"  test short with `t.SkipNow()` or a `return` instead.")
+		end
+		local found
+		src_code, found = insert_exit(code, exit_name)
+		if not found then
+			cleanup()
+			fail(el, 0, "",
+				"No `// exit: " .. exit_name .. "` marker in the code block",
+				"A `.go-output exit=\"" .. exit_name .. "\"` div needs a line\n" ..
+				"      // exit: " .. exit_name .. "\n" ..
+				"  in the block whose output it shows, where the program is to stop.")
+		end
+		local xf = io.open(src_dir .. "/" .. EXIT_FILE, "w")
+		xf:write("package main\n\nimport \"os\"\n\nfunc " .. EXIT_FUNC .. "() {\n\tos.Exit(0)\n}\n")
+		xf:close()
+	end
+
 	local f = io.open(src, "w")
 
 	-- write the code according to template
 	if template == "full" then
-		f:write(code)
+		f:write(src_code)
 	elseif template == "test" then
-		f:write("package " .. cfg.pkg .. "\n\n" .. code .. "\n")
+		f:write("package " .. cfg.pkg .. "\n\n" .. src_code .. "\n")
 	elseif template == "main" then
 		f:write([[package main
 
-    ]] .. code .. [[
+    ]] .. src_code .. [[
     ]])
 	elseif template == "mainfunc" then
 		f:write([[package main
 
 	  func main() {
 
-    ]] .. code .. [[
+    ]] .. src_code .. [[
 
 	  }
     ]])
@@ -353,6 +414,10 @@ local function run_go(el)
 	-- it would bring the old cache entry back.
 	if is_race then
 		key_extra = key_extra .. "|race"
+	end
+	-- The source already differs by the inserted call; this covers `EXIT_FILE`.
+	if exit_name ~= nil then
+		key_extra = key_extra .. "|exit"
 	end
 	local hp = io.popen("{ cat " .. src .. "; printf '%s' " .. shq(args) .. " " .. shq(key_extra) ..
 		"; } | sha256sum | cut -c1-16")
@@ -437,7 +502,7 @@ local function run_go(el)
 	-- find how many boilerplate lines precede user code (for adjusting compiler error line numbers)
 	local line_offset = 0
 	if template ~= "full" then
-		local first_line = code:match("^%s*([^\n]+)")
+		local first_line = src_code:match("^%s*([^\n]+)")
 		if first_line then
 			first_line = first_line:match("^%s*(.-)%s*$")
 			local n = 0
@@ -541,7 +606,24 @@ local function output_class(el)
 	return el.classes:includes("test") and "bash-output" or "go-output"
 end
 
+-- The block as a `.go-output exit=` div runs it. Whether that run has to fail is
+-- up to the div (`.expect-failure` on the div), not the block: a block that
+-- panics at its end may well be cut off before the panic.
+local function exit_run_block(block, div)
+	local b = block:clone()
+	b.classes = b.classes:filter(function(c)
+		return c ~= "expect-failure"
+	end)
+	if div.classes:includes("expect-failure") then
+		b.classes:insert("expect-failure")
+	end
+	return b
+end
+
 function Pandoc(doc)
+	-- the original blocks by output-id, for `.go-output exit=` divs that run them again
+	local blocks = {}
+
 	-- Pass 1: execute all {.go .run} blocks, that have an "output-id" and collect outputs by id (output-id)
 	doc.blocks:walk({
 		CodeBlock = function(el)
@@ -550,6 +632,7 @@ function Pandoc(doc)
 				local identifier = el.attributes["output-id"]
 				outputs[identifier] = output
 				output_classes[identifier] = output_class(el)
+				blocks[identifier] = el:clone()
 			end
 		end,
 	})
@@ -557,6 +640,7 @@ function Pandoc(doc)
 	-- Pass 2: replace code blocks (inline output) and .go-output divs
 	local last_go_output = nil -- remember the last output, for output without id
 	local last_go_output_class = "go-output"
+	local last_go_block = nil
 	doc.blocks = doc.blocks:walk({
 		CodeBlock = function(el)
 			if not el.classes:includes("go") then
@@ -570,6 +654,8 @@ function Pandoc(doc)
 				local output = id and outputs[id] or cli_prefix(run_go(el), el)
 				last_go_output = output
 				last_go_output_class = output_class(el)
+				-- a copy with the markers still in it; el.text loses them just below
+				last_go_block = el:clone()
 
 				el.text = (split_noshow(el.text))
 
@@ -589,9 +675,17 @@ function Pandoc(doc)
 				-- use last go output as default
 				local output = last_go_output
 				local cls = last_go_output_class
+				local block = last_go_block
 				if el.attributes["output-id"] ~= nil then
 					output = outputs[el.attributes["output-id"]]
 					cls = output_classes[el.attributes["output-id"]] or "go-output"
+					block = blocks[el.attributes["output-id"]]
+				end
+				-- `exit="<name>"`: not the block's own output, but that of a run cut
+				-- off at its `// exit: <name>` markers
+				local exit_name = el.attributes["exit"]
+				if exit_name ~= nil and block ~= nil then
+					output = cli_prefix(run_go(exit_run_block(block, el), exit_name), block)
 				end
 				if output ~= nil then
 					-- keep the `go-output` class as a stable styling hook — for `.test`

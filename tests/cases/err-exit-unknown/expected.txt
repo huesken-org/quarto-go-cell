@@ -1,0 +1,15 @@
+--- exit 1
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+--- stderr
+
+=== go-cell: No `// exit: second` marker in the code block ===
+  File       : TESTS/cases/err-exit-unknown/input.qmd
+  Code block : package main
+  Exit code  : 0
+  Output     :
+
+  A `.go-output exit="second"` div needs a line
+      // exit: second
+  in the block whose output it shows, where the program is to stop.
+

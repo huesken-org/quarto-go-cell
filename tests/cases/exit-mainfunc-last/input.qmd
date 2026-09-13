@@ -1,0 +1,18 @@
+<!-- Without output-id the div uses the last block; with a template the exit still works and needs no `os` import. A marker for another name stays inert. -->
+
+```{.go .run template="mainfunc"}
+fmt.Println("one")
+// exit: a
+fmt.Println("two")
+// exit: b
+fmt.Println("three")
+```
+
+::: {.go-output}
+:::
+
+::: {.go-output exit="a"}
+:::
+
+::: {.go-output exit="b"}
+:::

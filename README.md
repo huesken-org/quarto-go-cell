@@ -68,6 +68,27 @@ imports. Use `go-get=` when the version matters.
 Lines between `// <noshow>` and `// </noshow>` are compiled but not shown. Line
 numbers in errors are mapped back onto the visible code.
 
+A line `// exit: <name>` is never shown either. A `.go-output` div with
+`exit="<name>"` shows the output of a run that ends with `os.Exit(0)` at that
+marker — the lines after it stay in and are compiled, just not executed. Every
+other output of the block runs the whole program:
+
+````markdown
+```{.go .run .output}
+...
+	fmt.Println("one")
+	// exit: first
+	fmt.Println("two")
+...
+```
+
+::: {.go-output exit="first"}
+:::
+````
+
+The exit run has to succeed; put `.expect-failure` on the div if it should
+fail. It does not work on `.test` blocks.
+
 ## Testing
 
 A test case is a directory under `tests/cases/` holding an `input.qmd`. It is

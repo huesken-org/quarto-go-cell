@@ -1,0 +1,17 @@
+--- exit 0
+--- cache 2 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- The block panics after the marker, so the full run fails. The exit run stops before the panic and must succeed \8212 the expectation comes from the div. The marker counts as a hidden line: the panic at `main.go:10` shows as `main.go:9`. -->"
+, CodeBlock
+    ( "" , [ "go" , "run" , "output" , "expect-failure" ] , [] )
+    "package main\n\nimport \"fmt\"\n\nfunc main() {\n    fmt.Println(\"before\")\n    var m map[string]int\n    fmt.Println(\"after\")\n    m[\"x\"] = 1\n}"
+, CodeBlock
+    ( "" , [ "go-output" ] , [] )
+    "before\nafter\npanic: assignment to entry in nil map\n\ngoroutine 1 [running]:\nmain.main()\n\tmain.go:9 +0xADDR\nexit status 2\n"
+, CodeBlock
+    ( "" , [ "go-output" ] , [ ( "exit" , "safe" ) ] )
+    "before\n"
+]
+--- stderr

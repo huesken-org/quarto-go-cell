@@ -1,0 +1,18 @@
+<!-- The block panics after the marker, so the full run fails. The exit run stops before the panic and must succeed — the expectation comes from the div. The marker counts as a hidden line: the panic at `main.go:10` shows as `main.go:9`. -->
+
+```{.go .run .output .expect-failure}
+package main
+
+import "fmt"
+
+func main() {
+	fmt.Println("before")
+	// exit: safe
+	var m map[string]int
+	fmt.Println("after")
+	m["x"] = 1
+}
+```
+
+::: {.go-output exit="safe"}
+:::

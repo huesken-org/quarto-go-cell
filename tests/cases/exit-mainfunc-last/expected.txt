@@ -1,0 +1,17 @@
+--- exit 0
+--- cache 3 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- Without output-id the div uses the last block; with a template the exit still works and needs no `os` import. A marker for another name stays inert. -->"
+, CodeBlock
+    ( "" , [ "go" , "run" ] , [ ( "template" , "mainfunc" ) ] )
+    "fmt.Println(\"one\")\nfmt.Println(\"two\")\nfmt.Println(\"three\")"
+, CodeBlock
+    ( "" , [ "go-output" ] , [] ) "one\ntwo\nthree\n"
+, CodeBlock
+    ( "" , [ "go-output" ] , [ ( "exit" , "a" ) ] ) "one\n"
+, CodeBlock
+    ( "" , [ "go-output" ] , [ ( "exit" , "b" ) ] ) "one\ntwo\n"
+]
+--- stderr
