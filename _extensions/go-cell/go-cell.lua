@@ -563,16 +563,35 @@ local function run_go(el, exit_name)
 	-- `go get` after `tidy`, never before: `tidy` drops every require nothing
 	-- imports, so a module added first would be gone again. Pinning a version works
 	-- either way round, adding an unimported module only in this order.
+	--
+	-- Then `tidy` and `go get` once more. Pinning an imported module to an older
+	-- version than the one the first `tidy` picked (a downgrade) leaves `go.sum`
+	-- without the entries for that version's own dependencies — the build then
+	-- stops with "missing go.sum entry". The second `tidy` fills them in and keeps
+	-- the pinned version (it never upgrades); it drops an unimported module again,
+	-- which the second `go get` brings back.
 	if cfg.go_get ~= "" then
-		local get_out, get_exit = run_in(src_dir, "go get " .. cfg.go_get)
-		if get_exit ~= 0 then
-			cleanup()
-			fail(el, get_exit, get_out,
-				"`go get` failed",
-				"go-get=\"" .. cfg.go_get .. "\" is passed to `go get` as it stands. Expected\n" ..
-				"  are module paths, with a version where it matters:\n" ..
-				"      go-get=\"go.uber.org/goleak@v1.3.0\"")
+		local function go_get()
+			local get_out, get_exit = run_in(src_dir, "go get " .. cfg.go_get)
+			if get_exit ~= 0 then
+				cleanup()
+				fail(el, get_exit, get_out,
+					"`go get` failed",
+					"go-get=\"" .. cfg.go_get .. "\" is passed to `go get` as it stands. Expected\n" ..
+					"  are module paths, with a version where it matters:\n" ..
+					"      go-get=\"go.uber.org/goleak@v1.3.0\"")
+			end
 		end
+		go_get()
+		local tidy2_out, tidy2_exit = run_in(src_dir, "go mod tidy")
+		if tidy2_exit ~= 0 then
+			cleanup()
+			fail(el, tidy2_exit, tidy2_out,
+				"`go mod tidy` after `go get` failed",
+				"The versions from go-get=\"" .. cfg.go_get .. "\" do not fit together with\n" ..
+				"  the imports of the block. Check the pinned versions.")
+		end
+		go_get()
 	end
 
 	-- find how many boilerplate lines precede user code (for adjusting compiler error line numbers)

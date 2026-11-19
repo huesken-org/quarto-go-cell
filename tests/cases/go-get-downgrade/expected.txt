@@ -1,0 +1,17 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- go-get= pins an imported module to an older version than the one `go mod tidy` picks (a downgrade). That version's own dependencies need go.sum entries too; without a second `tidy` after `go get` the build stops with \"missing go.sum entry\". Needs network the first time (testify). -->"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "test" , "output" ]
+    , [ ( "go-get" , "github.com/stretchr/testify@v1.11.1" ) ]
+    )
+    "package main\n\nimport (\n    \"testing\"\n\n    \"github.com/stretchr/testify/assert\"\n)\n\nfunc TestTrue(t *testing.T) {\n    assert.True(t, true)\n}"
+, CodeBlock
+    ( "" , [ "bash-output" ] , [] )
+    "ok  \texample.com/main\t0.000s\n"
+]
+--- stderr

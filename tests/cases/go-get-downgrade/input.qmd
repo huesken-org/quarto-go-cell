@@ -1,0 +1,15 @@
+<!-- go-get= pins an imported module to an older version than the one `go mod tidy` picks (a downgrade). That version's own dependencies need go.sum entries too; without a second `tidy` after `go get` the build stops with "missing go.sum entry". Needs network the first time (testify). -->
+
+```{.go .run .test .output go-get="github.com/stretchr/testify@v1.11.1"}
+package main
+
+import (
+	"testing"
+
+	"github.com/stretchr/testify/assert"
+)
+
+func TestTrue(t *testing.T) {
+	assert.True(t, true)
+}
+```

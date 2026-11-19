@@ -26,7 +26,8 @@ jobs:
           version: 3.9.0.2
 
       # The `require-external*` and `go-get-unimported` cases pull
-      # go.uber.org/goleak; the build cache saves recompiling ~30 blocks.
+      # go.uber.org/goleak, `go-get-downgrade` pulls testify; the build cache
+      # saves recompiling ~30 blocks.
       - uses: actions/cache@v4
         with:
           path: |
