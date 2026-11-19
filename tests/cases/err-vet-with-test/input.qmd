@@ -1,0 +1,5 @@
+<!-- `.vet` and `.test` together are rejected: a `.vet` block only vets. -->
+
+```{.go .run .vet .test}
+package main
+```

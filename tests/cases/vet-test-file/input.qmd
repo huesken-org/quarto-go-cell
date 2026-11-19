@@ -1,0 +1,12 @@
+<!-- A test file is vetted through `filename=…_test.go`; `template="test"` adds the package clause from `module=`, `goimports` the imports. `t.Fatal` from a goroutine is a vet finding. -->
+
+```{.go .run .vet .output .expect-failure template="test" module="example.com/board" filename="board_test.go"}
+func TestBoard(t *testing.T) {
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		t.Fatal("from a goroutine")
+	}()
+	<-done
+}
+```

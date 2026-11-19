@@ -47,9 +47,10 @@ slide, say. Without an `output-id` it shows the last `.run` block's output:
 | `.run`            | compile and run; a non-zero exit aborts the render    |
 | `.output`         | append the output directly after the code             |
 | `.test`           | run with `go test` instead of `go run`                |
+| `.vet`            | run `go vet` instead of `go run`, findings are output |
 | `.race`           | add `-race`; needs cgo and a C compiler               |
 | `.expect-failure` | invert the check: the block *must* fail               |
-| `.show-cli`       | on `.test`, prefix the output with the `go test` line |
+| `.show-cli`       | on `.test`/`.vet`, prefix the output with the command |
 | `.hide-cli`       | with `args=`, suppress the `> go run .` line          |
 
 | attribute    | effect                                                                                                                        |
@@ -58,9 +59,23 @@ slide, say. Without an `output-id` it shows the last `.run` block's output:
 | `args=`      | arguments for the program: `go run . <args>`                                                                                  |
 | `go-get=`    | arguments for a `go get` after `go mod tidy`, to pin a version or add a module the code does not import                      |
 | `module=`    | module path of the generated `go.mod`. Default `example.com/main`                                                             |
-| `filename=`  | `.test` only: name of the generated `*_test.go`                                                                               |
+| `filename=`  | `.test`: name of the generated `*_test.go`; `.vet`: name of the vetted `*.go`                                                 |
 | `test-args=` | flags for `go test`, e.g. `-v`                                                                                                |
+| `vet-args=`  | flags for `go vet`, e.g. `-printf=false`                                                                                      |
 | `output-id=` | name this output for a `.go-output` div                                                                                       |
+
+A `.vet` block need not be `package main`. Any finding makes `go vet` exit
+non-zero, so a block that shows findings carries `.expect-failure`. `go vet`
+prints its findings in random order; the filter sorts them by position. To vet
+a test file, give it a test file name — `.vet` does not combine with `.test` or
+`.race`:
+
+````markdown
+```{.go .run .vet .output .expect-failure module="example.com/counter" filename="counter.go"}
+package counter
+...
+```
+````
 
 Dependencies need no declaration — `go mod tidy` resolves whatever the block
 imports. Use `go-get=` when the version matters.

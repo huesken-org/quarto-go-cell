@@ -1,0 +1,11 @@
+<!-- A `.vet` block without findings: exit 0, empty output. -->
+
+```{.go .run .vet .output module="example.com/clean"}
+package clean
+
+import "fmt"
+
+func Report(name string, n int) {
+	fmt.Printf("%s: %d\n", name, n)
+}
+```

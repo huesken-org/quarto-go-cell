@@ -1,0 +1,25 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- `.vet` runs `go vet` instead of `go run`: the package need not be `main`, findings exit non-zero (so `.expect-failure`), the `# <module>` header is dropped, `filename=` names the file, `.show-cli` adds the command line, and line numbers are mapped past the `<noshow>` lines. Findings of several analyzers come in random order from `go vet`; the filter sorts them by position. -->"
+, CodeBlock
+    ( ""
+    , [ "go"
+      , "run"
+      , "vet"
+      , "output"
+      , "expect-failure"
+      , "show-cli"
+      ]
+    , [ ( "module" , "example.com/vetdemo" )
+      , ( "filename" , "counter.go" )
+      ]
+    )
+    "package vetdemo\n\n\ntype Counter struct {\n    mu sync.Mutex\n    n  int\n}\n\nfunc (c Counter) Inc() {\n    c.mu.Lock()\n    defer c.mu.Unlock()\n    c.n++\n}\n\nfunc Report(name string, c *Counter) {\n    fmt.Printf(\"%s: %s\\n\", name, c.n)\n    log.Println(\"am\", time.Now().Format(\"2006-02-01\"))\n}\n\nfunc Reset(c *Counter) {\n    return\n    c.n = 0\n}"
+, CodeBlock
+    ( "" , [ "bash-output" ] , [] )
+    "> go vet ./vetdemo\ncounter.go:9:9: Inc passes lock by value: example.com/vetdemo.Counter contains sync.Mutex\ncounter.go:16:21: fmt.Printf format %s has arg c.n of wrong type int\ncounter.go:17:42: 2006-02-01 should be 2006-01-02\ncounter.go:22:5: unreachable code\n"
+]
+--- stderr

@@ -1,0 +1,19 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- `vet-args=` is passed to `go vet`: with `-printf=false` the wrong verb is no finding any more, and `.show-cli` shows the flag. -->"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "vet" , "output" , "show-cli" ]
+    , [ ( "vet-args" , "-printf=false" )
+      , ( "module" , "example.com/clean" )
+      ]
+    )
+    "package clean\n\nimport \"fmt\"\n\nfunc Report(name string, n int) {\n    fmt.Printf(\"%s: %s\\n\", name, n)\n}"
+, CodeBlock
+    ( "" , [ "bash-output" ] , [] )
+    "> go vet -printf=false ./clean\n"
+]
+--- stderr

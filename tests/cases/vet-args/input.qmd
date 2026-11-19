@@ -1,0 +1,11 @@
+<!-- `vet-args=` is passed to `go vet`: with `-printf=false` the wrong verb is no finding any more, and `.show-cli` shows the flag. -->
+
+```{.go .run .vet .output .show-cli vet-args="-printf=false" module="example.com/clean"}
+package clean
+
+import "fmt"
+
+func Report(name string, n int) {
+	fmt.Printf("%s: %s\n", name, n)
+}
+```

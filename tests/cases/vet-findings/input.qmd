@@ -1,0 +1,35 @@
+<!-- `.vet` runs `go vet` instead of `go run`: the package need not be `main`, findings exit non-zero (so `.expect-failure`), the `# <module>` header is dropped, `filename=` names the file, `.show-cli` adds the command line, and line numbers are mapped past the `<noshow>` lines. Findings of several analyzers come in random order from `go vet`; the filter sorts them by position. -->
+
+```{.go .run .vet .output .expect-failure .show-cli module="example.com/vetdemo" filename="counter.go"}
+package vetdemo
+
+// <noshow>
+import (
+	"fmt"
+	"log"
+	"sync"
+	"time"
+)
+// </noshow>
+
+type Counter struct {
+	mu sync.Mutex
+	n  int
+}
+
+func (c Counter) Inc() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	c.n++
+}
+
+func Report(name string, c *Counter) {
+	fmt.Printf("%s: %s\n", name, c.n)
+	log.Println("am", time.Now().Format("2006-02-01"))
+}
+
+func Reset(c *Counter) {
+	return
+	c.n = 0
+}
+```

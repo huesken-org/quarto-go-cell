@@ -45,29 +45,33 @@ local function go_mod_version()
 end
 
 -- Configuration of a `{.go .run}` block. Every block gets a synthetic `go.mod`,
--- so these apply to `go run` and `go test` blocks alike.
+-- so these apply to `go run`, `go test` and `go vet` blocks alike.
 --   module=    module path of the synthetic `go.mod`; its last segment becomes
 --              the package name and so shows up in the `ok …` line
---   filename=  supplies (as a basename) the name of the test file, so the file
---              names in the output match the slide header. `.test` blocks only:
---              `go test` finds tests in `*_test.go`, a `go run` block is always
---              `main.go`
+--   filename=  supplies (as a basename) the name of the source file, so the file
+--              names in the output match the slide header. `.test` blocks: must
+--              end in `_test.go` (`go test` finds tests only there). `.vet`
+--              blocks: any `*.go`, so a test file can be vetted too. A `go run`
+--              block is always `main.go`
 --   test-args= flags for `go test` (not to be confused with `args`, which means
 --              arguments passed to a program started by `go run`)
+--   vet-args=  flags for `go vet`, e.g. `-printf=false`
 --   go-get=    arguments for a `go get` run after `go mod tidy`, to pin a version
 --              (`go.uber.org/goleak@v1.3.0`) or to add a module the code does not
 --              import itself — `tidy` would drop that one again, which is why the
 --              `go get` comes after it
 local function block_config(el, is_test)
+	local is_vet = el.classes:includes("vet")
 	local module = el.attributes["module"]
 	if module == nil or module == "" then
 		module = DEFAULT_MODULE
 	end
 	local file = is_test and "main_test.go" or "main.go"
 	local fn = el.attributes["filename"]
-	if is_test and fn ~= nil and fn ~= "" then
+	if (is_test or is_vet) and fn ~= nil and fn ~= "" then
 		local base = fn:match("([^/]+)$")
-		if base ~= nil and base:match("_test%.go$") then
+		local wanted = is_test and "_test%.go$" or "%.go$"
+		if base ~= nil and base:match(wanted) then
 			file = base
 		end
 	end
@@ -76,11 +80,12 @@ local function block_config(el, is_test)
 		pkg = module:match("([^/]+)$") or module,
 		file = file,
 		flags = el.attributes["test-args"] or "",
+		vet_flags = el.attributes["vet-args"] or "",
 		go_get = el.attributes["go-get"] or "",
 	}
 end
 
--- Tidies up the output of `go run` and `go test`:
+-- Tidies up the output of `go run`, `go test` and `go vet`:
 --   * drop the `# <module>` header lines in front of compiler/vet errors
 --   * cut path prefixes off the source file (`./board_test.go` -> `board_test.go`)
 -- Durations stay as `go test` reports them.
@@ -94,6 +99,44 @@ local function normalize_output(output, cfg)
 		end
 	end
 	return table.concat(out, "\n")
+end
+
+-- `go vet` runs its analyzers in parallel and prints their findings in whatever
+-- order they finish — a different one on every run. Sort them by position
+-- (file, line, column), so the slide and the cache stay stable. Only when every
+-- non-empty line is a `file:line:col: message` finding; anything else (a compile
+-- error, say) is left as it is. The sort is stable for equal positions.
+local function sort_findings(output)
+	local items = {}
+	for line in (output .. "\n"):gmatch("([^\n]*)\n") do
+		if line ~= "" then
+			local file, ln, col = line:match("^([^:%s]+):(%d+):(%d+): ")
+			if file == nil then
+				return output
+			end
+			table.insert(items, { line = line, file = file, ln = tonumber(ln), col = tonumber(col), i = #items })
+		end
+	end
+	table.sort(items, function(a, b)
+		if a.file ~= b.file then
+			return a.file < b.file
+		end
+		if a.ln ~= b.ln then
+			return a.ln < b.ln
+		end
+		if a.col ~= b.col then
+			return a.col < b.col
+		end
+		return a.i < b.i
+	end)
+	local out = {}
+	for _, it in ipairs(items) do
+		table.insert(out, it.line)
+	end
+	if #out == 0 then
+		return output
+	end
+	return table.concat(out, "\n") .. "\n"
 end
 
 -- `// exit: <name>` on a line of its own marks where a `.go-output exit="<name>"`
@@ -160,6 +203,18 @@ local function split_noshow(code)
 end
 
 local function cli_prefix(output, el)
+	-- Vet blocks, like test blocks: the invocation line only on request.
+	if el.classes:includes("vet") then
+		if not el.classes:includes("show-cli") then
+			return output
+		end
+		local cfg = block_config(el, false)
+		local cmd = "> go vet"
+		if cfg.vet_flags ~= "" then
+			cmd = cmd .. " " .. cfg.vet_flags
+		end
+		return cmd .. " ./" .. cfg.pkg .. "\n" .. output
+	end
 	-- Test blocks: show the invocation line only on request. Most slides already
 	-- show the command in a `{.bash}` block of their own above it.
 	if el.classes:includes("test") then
@@ -293,7 +348,25 @@ local function run_go(el, exit_name)
 	local is_test = el.classes:includes("test")
 	-- `.race` switches the race detector on (`-race`, see `race_env`).
 	local is_race = el.classes:includes("race")
+	-- `.vet` runs `go vet` instead: the block need not be `package main`, and the
+	-- findings are the output. Any finding makes `go vet` exit non-zero, so such
+	-- a block carries `.expect-failure`.
+	local is_vet = el.classes:includes("vet")
 	local cfg = block_config(el, is_test)
+
+	-- Checked before anything touches the disk, so no cleanup is needed.
+	if is_vet and (is_test or is_race) then
+		fail(el, 0, "",
+			"`.vet` cannot be combined with `." .. (is_test and "test" or "race") .. "`",
+			"A `.vet` block runs `go vet` and nothing else. To vet a test file, give it a\n" ..
+			"  test file name instead:\n" ..
+			"      ```{.go .run .vet filename=\"board_test.go\"}")
+	end
+	if is_vet and exit_name ~= nil then
+		fail(el, 0, "",
+			"exit=\"" .. exit_name .. "\" does not work with `.vet` blocks",
+			"`go vet` does not run the program, so there is nothing to cut off.")
+	end
 
 	-- The default is `full` everywhere, `.test` included: the author writes the
 	-- file exactly as it is. A test example often *shows* the package clause on
@@ -331,12 +404,12 @@ local function run_go(el, exit_name)
 	-- `template="test"` prepends the package clause derived from `module=`, and
 	-- only a `.test` block has that config. Without this guard the block dies in
 	-- `cfg.pkg` with a bare Lua traceback naming neither slide nor code block.
-	if template == "test" and not is_test then
+	if template == "test" and not (is_test or is_vet) then
 		cleanup()
 		fail(el, 0, "",
-			"template=\"test\" works only on `.test` blocks",
-			"The package clause it adds is derived from `module=`, which only a test\n" ..
-			"  block has. Mark the block with `.test` as well:\n" ..
+			"template=\"test\" works only on `.test` and `.vet` blocks",
+			"The package clause it adds is derived from `module=`, and a `go run` block\n" ..
+			"  is always `package main`. Mark the block with `.test` (or `.vet`) as well:\n" ..
 			"      ```{.go .run .test template=\"test\"}")
 	end
 
@@ -414,6 +487,9 @@ local function run_go(el, exit_name)
 	-- it would bring the old cache entry back.
 	if is_race then
 		key_extra = key_extra .. "|race"
+	end
+	if is_vet then
+		key_extra = key_extra .. "|go-vet|" .. cfg.vet_flags
 	end
 	-- The source already differs by the inserted call; this covers `EXIT_FILE`.
 	if exit_name ~= nil then
@@ -519,7 +595,13 @@ local function run_go(el, exit_name)
 	local env = is_race and race_env() or "CGO_ENABLED=0 "
 	local race_flag = is_race and " -race" or ""
 	local run_cmd
-	if is_test then
+	if is_vet then
+		run_cmd = env .. "go vet"
+		if cfg.vet_flags ~= "" then
+			run_cmd = run_cmd .. " " .. cfg.vet_flags
+		end
+		run_cmd = run_cmd .. " ."
+	elseif is_test then
 		-- `-count=1` disables Go's own test cache; otherwise the second run would put
 		-- `(cached)` on the slide instead of a duration.
 		run_cmd = env .. "go test -count=1" .. race_flag
@@ -554,6 +636,9 @@ local function run_go(el, exit_name)
 	local wf = io.open(cache_file, "w")
 
 	output = normalize_output(output, cfg)
+	if is_vet then
+		output = sort_findings(output)
+	end
 	local shown_file = cfg.file
 	-- Map line numbers back onto the visible code. Two shifts overlap: the template
 	-- boilerplate *above* the user code (constant `line_offset`, determined above)
@@ -601,9 +686,9 @@ end
 
 -- class for styling output:
 -- If it is go output, style it using go-output
--- If it is test output, style it using bash-output
+-- If it is test or vet output, style it using bash-output
 local function output_class(el)
-	return el.classes:includes("test") and "bash-output" or "go-output"
+	return (el.classes:includes("test") or el.classes:includes("vet")) and "bash-output" or "go-output"
 end
 
 -- The block as a `.go-output exit=` div runs it. Whether that run has to fail is

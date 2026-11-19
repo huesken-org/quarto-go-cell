@@ -3,13 +3,13 @@
 --- stdout
 --- stderr
 
-=== go-cell: template="test" works only on `.test` blocks ===
+=== go-cell: template="test" works only on `.test` and `.vet` blocks ===
   File       : TESTS/cases/err-test-template-without-test/input.qmd
   Code block : func TestX(t *testing.T) {}
   Exit code  : 0
   Output     :
 
-  The package clause it adds is derived from `module=`, which only a test
-  block has. Mark the block with `.test` as well:
+  The package clause it adds is derived from `module=`, and a `go run` block
+  is always `package main`. Mark the block with `.test` (or `.vet`) as well:
       ```{.go .run .test template="test"}
 

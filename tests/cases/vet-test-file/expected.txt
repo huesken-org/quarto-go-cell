@@ -1,0 +1,20 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- A test file is vetted through `filename=\8230_test.go`; `template=\"test\"` adds the package clause from `module=`, `goimports` the imports. `t.Fatal` from a goroutine is a vet finding. -->"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "vet" , "output" , "expect-failure" ]
+    , [ ( "template" , "test" )
+      , ( "module" , "example.com/board" )
+      , ( "filename" , "board_test.go" )
+      ]
+    )
+    "func TestBoard(t *testing.T) {\n    done := make(chan struct{})\n    go func() {\n        defer close(done)\n        t.Fatal(\"from a goroutine\")\n    }()\n    <-done\n}"
+, CodeBlock
+    ( "" , [ "bash-output" ] , [] )
+    "board_test.go:5:3: call to (*testing.T).Fatal from a non-test goroutine\n"
+]
+--- stderr

@@ -1,0 +1,15 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- A `.vet` block without findings: exit 0, empty output. -->"
+, CodeBlock
+    ( ""
+    , [ "go" , "run" , "vet" , "output" ]
+    , [ ( "module" , "example.com/clean" ) ]
+    )
+    "package clean\n\nimport \"fmt\"\n\nfunc Report(name string, n int) {\n    fmt.Printf(\"%s: %d\\n\", name, n)\n}"
+, CodeBlock ( "" , [ "bash-output" ] , [] ) ""
+]
+--- stderr
