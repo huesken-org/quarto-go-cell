@@ -1,0 +1,9 @@
+<!-- `.go-generate` without a `//go:generate` line is an authoring mistake: `go generate` would silently do nothing. Caught before anything touches the disk. -->
+
+```{.go .run .test .output .go-generate}
+package main
+
+import "testing"
+
+func TestNothing(t *testing.T) {}
+```

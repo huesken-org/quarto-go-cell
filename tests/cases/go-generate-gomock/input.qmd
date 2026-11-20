@@ -1,0 +1,25 @@
+<!-- .go-generate runs `go generate` after `tidy` and `go get`: the mock comes from mockgen, which go-get= adds as a tool. The interface sits in the test file itself (`-source=`), hidden by noshow. Needs network the first time (go.uber.org/mock). -->
+
+```{.go .run .test .output .go-generate module="example.com/rocket" filename="rocket_test.go" go-get="-tool go.uber.org/mock/mockgen@v0.6.0"}
+package rocket
+
+import (
+	"testing"
+
+	"go.uber.org/mock/gomock"
+)
+
+// <noshow>
+type Radio interface{ Send(msg string) error }
+
+func Countdown(r Radio) error { return r.Send("T-0") }
+
+// </noshow>
+//go:generate go tool mockgen -source=rocket_test.go -destination=mock_test.go -package=rocket
+
+func TestCountdown(t *testing.T) {
+	radio := NewMockRadio(gomock.NewController(t))
+	radio.EXPECT().Send("T-0").Return(nil)
+	Countdown(radio)
+}
+```

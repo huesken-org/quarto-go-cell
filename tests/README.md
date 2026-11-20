@@ -6,7 +6,8 @@ quarto install needed. What they do need is `pandoc`, `go` and `goimports`,
 plus a C compiler for the `race` case (the race detector is ThreadSanitizer)
 and network access the first time, for the cases that pull `go.uber.org/goleak`
 in (`require-external`, `require-external-run`, `go-get-unimported`), and
-github.com/stretchr/testify for `go-get-downgrade` — after
+github.com/stretchr/testify for `go-get-downgrade` and go.uber.org/mock for
+`go-generate-gomock*` — after
 that it comes from the module cache.
 
 ```sh

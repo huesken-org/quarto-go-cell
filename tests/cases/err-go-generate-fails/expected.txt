@@ -1,0 +1,18 @@
+--- exit 1
+--- cache 0 result(s), 0 leftover dir(s)
+--- stdout
+--- stderr
+
+=== go-cell: `go generate` failed ===
+  File       : TESTS/cases/err-go-generate-fails/input.qmd
+  Code block : package main
+  Exit code  : 1
+  Output     :
+    | go: no such tool "mockgen"
+    | main_test.go:5: running "go": exit status 2
+
+  A tool called by `//go:generate` has to be available in the module, e.g.
+      go-get="-tool go.uber.org/mock/mockgen@v0.6.0"
+  together with `//go:generate go tool mockgen ...`. `-source=` names the
+  file as `filename=` does.
+

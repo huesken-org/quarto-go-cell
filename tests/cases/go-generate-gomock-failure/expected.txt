@@ -1,0 +1,26 @@
+--- exit 0
+--- cache 1 result(s), 0 leftover dir(s)
+--- stdout
+[ RawBlock
+    (Format "html")
+    "<!-- A gomock expectation that is not met, the usual \"red\" example on a slide. Line numbers in gomock's message are mapped onto the visible code like compiler errors; `controller.go` is gomock's own file. Needs network the first time (go.uber.org/mock). -->"
+, CodeBlock
+    ( ""
+    , [ "go"
+      , "run"
+      , "test"
+      , "output"
+      , "expect-failure"
+      , "go-generate"
+      ]
+    , [ ( "module" , "example.com/rocket" )
+      , ( "filename" , "rocket_test.go" )
+      , ( "go-get" , "-tool go.uber.org/mock/mockgen@v0.6.0" )
+      ]
+    )
+    "package rocket\n\nimport (\n    \"testing\"\n\n    \"go.uber.org/mock/gomock\"\n)\n\nfunc Countdown(r Radio) error { return r.Send(\"T-1\") }\n\n//go:generate go tool mockgen -source=rocket_test.go -destination=mock_test.go -package=rocket\n\nfunc TestCountdown(t *testing.T) {\n    radio := NewMockRadio(gomock.NewController(t))\n    radio.EXPECT().Send(\"T-0\").Return(nil)\n    Countdown(radio)\n}"
+, CodeBlock
+    ( "" , [ "bash-output" ] , [] )
+    "--- FAIL: TestCountdown (0.000s)\n    rocket_test.go:9: Unexpected call to *rocket.MockRadio.Send([T-1]) at rocket_test.go:9 because: \n        expected call at rocket_test.go:15 doesn't match the argument at index 0.\n        Got: T-1 (string)\n        Want: is equal to T-0 (string)\n    controller.go:97: missing call(s) to *rocket.MockRadio.Send(is equal to T-0 (string)) rocket_test.go:15\n    controller.go:97: aborting test due to missing call(s)\nFAIL\nFAIL\texample.com/rocket\t0.000s\nFAIL\n"
+]
+--- stderr

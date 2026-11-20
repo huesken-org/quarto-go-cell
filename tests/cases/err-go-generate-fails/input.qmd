@@ -1,0 +1,11 @@
+<!-- A failing `go generate` must abort the render, not land on the slide. The directive calls a tool that is not in the module, so the case needs no network. -->
+
+```{.go .run .test .output .go-generate}
+package main
+
+import "testing"
+
+//go:generate go tool mockgen -source=main_test.go -destination=mock_test.go -package=main
+
+func TestNothing(t *testing.T) {}
+```

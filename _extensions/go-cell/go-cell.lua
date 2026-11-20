@@ -60,6 +60,9 @@ end
 --              (`go.uber.org/goleak@v1.3.0`) or to add a module the code does not
 --              import itself — `tidy` would drop that one again, which is why the
 --              `go get` comes after it
+--   .go-generate run `go generate ./...` after `tidy` and `go get`, so a
+--              `//go:generate` line in the block (e.g. `mockgen`) produces the
+--              files the build needs
 local function block_config(el, is_test)
 	local is_vet = el.classes:includes("vet")
 	local module = el.attributes["module"]
@@ -82,6 +85,7 @@ local function block_config(el, is_test)
 		flags = el.attributes["test-args"] or "",
 		vet_flags = el.attributes["vet-args"] or "",
 		go_get = el.attributes["go-get"] or "",
+		go_generate = el.classes:includes("go-generate"),
 	}
 end
 
@@ -362,6 +366,15 @@ local function run_go(el, exit_name)
 			"  test file name instead:\n" ..
 			"      ```{.go .run .vet filename=\"board_test.go\"}")
 	end
+	-- Without a directive `go generate` silently does nothing, and the build would
+	-- fail later over whatever was meant to be generated.
+	if cfg.go_generate and not code:match("//go:generate ") then
+		fail(el, 0, "",
+			"`.go-generate` without a `//go:generate` line",
+			"`.go-generate` runs `go generate ./...`, which only acts on directives in\n" ..
+			"  the block. Add one (it may sit inside `// <noshow>`):\n" ..
+			"      //go:generate go tool mockgen -source=main_test.go -destination=mock_test.go -package=main")
+	end
 	if is_vet and exit_name ~= nil then
 		fail(el, 0, "",
 			"exit=\"" .. exit_name .. "\" does not work with `.vet` blocks",
@@ -495,6 +508,12 @@ local function run_go(el, exit_name)
 	if exit_name ~= nil then
 		key_extra = key_extra .. "|exit"
 	end
+	-- What `go generate` produces depends on the tool versions from `go-get=`
+	-- (already in the key) and the code; the extra only separates it from a run
+	-- without generating.
+	if cfg.go_generate then
+		key_extra = key_extra .. "|go-generate"
+	end
 	local hp = io.popen("{ cat " .. src .. "; printf '%s' " .. shq(args) .. " " .. shq(key_extra) ..
 		"; } | sha256sum | cut -c1-16")
 	local key = hp:read("*l")
@@ -592,6 +611,22 @@ local function run_go(el, exit_name)
 				"  the imports of the block. Check the pinned versions.")
 		end
 		go_get()
+	end
+
+	-- `go generate` last, once `go.mod` is complete: a directive like
+	-- `go tool mockgen` needs the tool that `go-get="-tool …"` added. The generated
+	-- files only live in the scratch directory, the slide shows just the block.
+	if cfg.go_generate then
+		local gen_out, gen_exit = run_in(src_dir, "go generate ./...")
+		if gen_exit ~= 0 then
+			cleanup()
+			fail(el, gen_exit, gen_out,
+				"`go generate` failed",
+				"A tool called by `//go:generate` has to be available in the module, e.g.\n" ..
+				"      go-get=\"-tool go.uber.org/mock/mockgen@v0.6.0\"\n" ..
+				"  together with `//go:generate go tool mockgen ...`. `-source=` names the\n" ..
+				"  file as `filename=` does.")
+		end
 	end
 
 	-- find how many boilerplate lines precede user code (for adjusting compiler error line numbers)

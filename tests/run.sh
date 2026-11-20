@@ -7,9 +7,9 @@
 # compared against `expected.txt`.
 #
 # Besides pandoc, go and goimports, the full suite needs a C compiler (the
-# `race` case) and the go.uber.org/goleak and github.com/stretchr/testify
-# modules in the module cache or network access to fetch them (the
-# `require-external*`, `go-get-*` cases).
+# `race` case) and the go.uber.org/goleak, github.com/stretchr/testify and
+# go.uber.org/mock modules in the module cache or network access to fetch them
+# (the `require-external*`, `go-get-*`, `go-generate-gomock*` cases).
 #
 # The filter only touches `quarto.*` inside pcall, so plain pandoc is enough —
 # no quarto install needed to run these.

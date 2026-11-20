@@ -52,6 +52,7 @@ slide, say. Without an `output-id` it shows the last `.run` block's output:
 | `.expect-failure` | invert the check: the block *must* fail               |
 | `.show-cli`       | on `.test`/`.vet`, prefix the output with the command |
 | `.hide-cli`       | with `args=`, suppress the `> go run .` line          |
+| `.go-generate`    | run `go generate ./...` before the block runs         |
 
 | attribute    | effect                                                                                                                        |
 |--------------|-------------------------------------------------------------------------------------------------------------------------------|
@@ -79,6 +80,34 @@ package counter
 
 Dependencies need no declaration — `go mod tidy` resolves whatever the block
 imports. Use `go-get=` when the version matters.
+
+`.go-generate` runs `go generate ./...` after `go mod tidy` and `go-get=`, so a
+`//go:generate` line in the block can produce code the block needs — a gomock
+mock, say. The tool comes in through `go-get="-tool …"`, and `mockgen` can read
+the interface straight from the block's own file (`-source=` names it as
+`filename=` does). The generated files are compiled, never shown:
+
+````markdown
+```{.go .run .test .output .go-generate module="example.com/rocket" filename="rocket_test.go" go-get="-tool go.uber.org/mock/mockgen@v0.6.0"}
+package rocket
+
+import (
+	"testing"
+
+	"go.uber.org/mock/gomock"
+)
+
+type Radio interface{ Send(msg string) error }
+
+//go:generate go tool mockgen -source=rocket_test.go -destination=mock_test.go -package=rocket
+
+func TestSend(t *testing.T) {
+	radio := NewMockRadio(gomock.NewController(t))
+	radio.EXPECT().Send("T-0").Return(nil)
+	radio.Send("T-0")
+}
+```
+````
 
 Lines between `// <noshow>` and `// </noshow>` are compiled but not shown. Line
 numbers in errors are mapped back onto the visible code.
